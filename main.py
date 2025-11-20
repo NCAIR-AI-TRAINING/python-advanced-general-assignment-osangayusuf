@@ -2,6 +2,9 @@ from datetime import datetime
 import os
 
 class DuplicateVisitorError(Exception):
+    def __init__(self, visitor_name):
+        self.visitor_name = visitor_name
+        super().__init__(f"Visitor '{visitor_name}' has already visited.")
     pass
 
 class EarlyEntryError(Exception):
@@ -29,7 +32,7 @@ def get_last_visitor():
         with open(FILENAME, "r") as f:
             lines = f.readlines()
             if lines:
-                return lines[-1].strip()
+                return lines[-1].strip().split(" | ")[0]
             return None
     except Exception as e:
         print(f"Unexpected error while getting last visitor: {e}")
@@ -43,8 +46,9 @@ def add_visitor(visitor_name):
         if visitor_name == last_visitor_name:
             raise DuplicateVisitorError(visitor_name)
 
-        # Add new entry
-        entry = f"{visitor_name}\n"
+        # Add new entry with  timestamp
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        entry = f"{visitor_name} | {timestamp}\n"
 
         with open(FILENAME, "a") as f:
             f.write(entry)
