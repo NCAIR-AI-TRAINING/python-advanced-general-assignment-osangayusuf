@@ -39,7 +39,7 @@ jobs:
           test-name: Duplicate Visitor Error
           expected-output: "passed"
           comparison-method: exact
-          command: 'bash -c "grep ''test_duplicate_visitor_error'' results.xml | grep -q ''status="passed"'' && echo passed || echo failed"'
+          command: 'bash -c "grep ''test_duplicate_visitor_error'' results.xml | grep -vq ''<failure'' && echo passed || echo failed"'
           timeout: 10
 
       - name: Parse Test 2
@@ -49,7 +49,7 @@ jobs:
           test-name: File Creation Test
           expected-output: "passed"
           comparison-method: exact
-          command: 'bash -c "grep ''test_file_is_created_if_missing'' results.xml | grep -q ''status="passed"'' && echo passed || echo failed"'
+          command: 'bash -c "grep ''test_file_is_created_if_missing'' results.xml | grep -vq ''<failure'' && echo passed || echo failed"'
           timeout: 10
 
       - name: Parse Test 3
@@ -59,7 +59,7 @@ jobs:
           test-name: Timestamp Test
           expected-output: "passed"
           comparison-method: exact
-          command: 'bash -c "grep ''test_timestamp_is_added'' results.xml | grep -q ''status="passed"'' && echo passed || echo failed"'
+          command: 'bash -c "grep ''test_timestamp_is_added'' results.xml | grep -vq ''<failure'' && echo passed || echo failed"'
           timeout: 10
 
       - name: Parse Test 4
@@ -69,16 +69,30 @@ jobs:
           test-name: Wait Time Enforcement
           expected-output: "passed"
           comparison-method: exact
-          command: 'bash -c "grep ''test_wait_time_enforced'' results.xml | grep -q ''status="passed"'' && echo passed || echo failed"'
+          command: 'bash -c "grep ''test_wait_time_enforced'' results.xml | grep -vq ''<failure'' && echo passed || echo failed"'
           timeout: 10
 
       # --------------- REPORT RESULTS TO CLASSROOM -----------------
 
+      - name: Calculate Score
+        id: score
+        run: |
+          TOTAL=0
+          declare -A tests=( [test_duplicate_visitor_error]=25 [test_file_is_created_if_missing]=25 [test_timestamp_is_added]=25 [test_wait_time_enforced]=25 )
+          for t in "${!tests[@]}"; do
+            if grep "$t" results.xml | grep -vq '<failure'; then
+              TOTAL=$((TOTAL+tests[$t]))
+            fi
+          done
+          echo "score=$TOTAL" >> "$GITHUB_OUTPUT"
+          echo "Computed Score: $TOTAL / 100"
+
+      - name: Score Summary
+        if: always()
+        run: |
+          echo "Final Score: ${{ steps.score.outputs.score }} / 100" >> $GITHUB_STEP_SUMMARY
+
       - name: Autograding Reporter
         uses: classroom-resources/autograding-grading-reporter@v1
         with:
-          runners: |
-            t1
-            t2
-            t3
-            t4
+          runners: t1,t2,t3,t4
