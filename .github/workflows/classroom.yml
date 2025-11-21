@@ -41,6 +41,7 @@ jobs:
           comparison-method: exact
           command: 'bash -c "grep ''test_duplicate_visitor_error'' results.xml | grep -vq ''<failure'' && echo passed || echo failed"'
           timeout: 10
+          max-score: 25
 
       - name: Parse Test 2
         id: t2
@@ -51,6 +52,7 @@ jobs:
           comparison-method: exact
           command: 'bash -c "grep ''test_file_is_created_if_missing'' results.xml | grep -vq ''<failure'' && echo passed || echo failed"'
           timeout: 10
+          max-score: 25
 
       - name: Parse Test 3
         id: t3
@@ -61,6 +63,7 @@ jobs:
           comparison-method: exact
           command: 'bash -c "grep ''test_timestamp_is_added'' results.xml | grep -vq ''<failure'' && echo passed || echo failed"'
           timeout: 10
+          max-score: 25
 
       - name: Parse Test 4
         id: t4
@@ -71,6 +74,7 @@ jobs:
           comparison-method: exact
           command: 'bash -c "grep ''test_wait_time_enforced'' results.xml | grep -vq ''<failure'' && echo passed || echo failed"'
           timeout: 10
+          max-score: 25
 
       # --------------- REPORT RESULTS TO CLASSROOM -----------------
 
